@@ -65,21 +65,20 @@ class Mesh:
                 gmsh.renumerate_elements(self._boundaryElements, skipped_tags)
             
     def Show(self):
+        if (self._meshDim == 2):
+            self._Plot2D()
+            
+    
+    def _Plot2D(self):
         ax = plt.subplots()[1]
         patches = []
-        for el in self._domain:
+        for el in self._domainElements:
             patches.append(
-                Polygon(np.transpose(self._nodes[0:2, el._connectivity ]), True)
+                Polygon(np.transpose(self._nodes[0:2, el._connectivity ]), closed = True)
             )
-        p = PatchCollection(patches)
-
-        colors = 100*np.random.rand(len(patches))
-        p.set_array(np.array(colors))
-
+        p = PatchCollection(patches, facecolor = 'cyan', edgecolor = 'black')
         ax.add_collection(p)
-
         plt.show()
-    
     
         
         
