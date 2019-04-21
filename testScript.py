@@ -1,7 +1,12 @@
 import simpleMesh
 
-mesh = simpleMesh.Mesh()
+import vtkTools as vtk
 
-# mesh.Import_gmsh('msh.gmsh/square.msh')
-mesh.Import_gmsh('msh.gmsh/quadun.msh')
-mesh.Show()
+
+
+mesh = simpleMesh.Mesh()
+mesh.Import_gmsh('msh.gmsh/quadtri.msh')
+
+vtk.export('./test', mesh)
+
+

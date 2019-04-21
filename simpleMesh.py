@@ -1,12 +1,24 @@
 import numpy as np
+# import numba 
 
-import gmshTools as gmsh
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 
+
+
+
 class Mesh:
+    __slots__ = (
+        '_info',
+        '_nodes',
+        '_domainElements',
+        '_boundaryElements',
+        '_problemDim',
+        '_meshDim'
+    )
+    
     def __init__(self):
         self._info = {}                 #information about mesh
         self._nodes = np.empty((3,0))   #node list (type vector)
@@ -27,6 +39,8 @@ class Mesh:
             - Triangle (3 node)
             - Quadrangle (4 node)
         '''
+        import gmshTools as gmsh
+        
         #TODO implemenation that reads only known sections
         #TODO   and can omit any unwanted data 
         
@@ -61,8 +75,11 @@ class Mesh:
             # back)
             skipped_tags = []
             if (gmsh.check_for_renumeration(node_tags, skipped_tags)):
+                skipped_tags = np.array(skipped_tags)-1
                 gmsh.renumerate_elements(self._domainElements, skipped_tags)
                 gmsh.renumerate_elements(self._boundaryElements, skipped_tags)
+    
+    def get_n_elements(self): return len(self._domainElements)
             
     def Show(self):
         if (self._meshDim == 2):

@@ -1,4 +1,6 @@
 import numpy as np
+from numba import jit, int64
+from numpy import int32
 
 import elements
 
@@ -8,13 +10,13 @@ def skip_section(file, section_name):
             pass
          
         return 0
-    
+
 def entity_block_info(file):
         block = file.readline()
         block = [int(i) for i in block[:-1].split(' ')]
         
         return block[0], block[1] #number of entity blocks and number of objects in such block
-    
+  
 def parse_entity(file):
         info = file.readline()
         info = [int(i) for i in info[:-1].split(' ')]
@@ -49,8 +51,6 @@ def parse_nodes(file, ref_node_tags):
         
         return nodes
     
- 
-    
 def read_Nodes(file):
         n_entities, n_nodes = entity_block_info(file)
         node_list = np.empty((3, n_nodes))
@@ -69,14 +69,15 @@ def read_Nodes(file):
             return node_list, node_tags
         else:
             return -1
-        
+
+    
 def read_Elements(file, ref_domain_list, ref_boundary_list, maxDim):
     n_entities = entity_block_info(file)[0]
     
     for i in range(n_entities):
         elements, el_type, phys_id = parse_entity(file)
         
-        el_dim = gmshTypes[el_type]([], [])._d
+        el_dim = gmshTypes[el_type](0, 0)._d
         domain = 0
         if (el_dim == maxDim):
             domain = 1
@@ -84,13 +85,15 @@ def read_Elements(file, ref_domain_list, ref_boundary_list, maxDim):
         for el in elements:
             el = [int(i) for i in el[:-1].split(' ')]
             
+            
+            
             if (domain and el_dim):
                 ref_domain_list.append(
-                    gmshTypes[el_type](el[1:], phys_id)
+                    gmshTypes[el_type](np.array(el[1:], dtype=int32), phys_id)
                 )
             elif (el_dim):
                 ref_boundary_list.append(
-                    gmshTypes[el_type](el[1:], phys_id)
+                    gmshTypes[el_type](np.array(el[1:], dtype=int32), phys_id)
                 )
                 
             
@@ -107,13 +110,15 @@ def read_Entities(file, mesh_info):
             pass
          
         return 0
-    
+
+
 def read_MeshFormat(file, mesh_info):
         format = file.readline()
         format = format.split(' ')
         mesh_info['version'] = 'MSH ' + format[0] + ' ASCII'
         format = file.readline()
         return 0
+    
 
 def check_for_renumeration(node_tags, ref_skipped_nodes):
     for i in range(len(node_tags) - 1):
@@ -122,13 +127,18 @@ def check_for_renumeration(node_tags, ref_skipped_nodes):
     
     return len(ref_skipped_nodes)
 
+
 def renumerate_elements(ref_elements, skipped_tags):
     for el in ref_elements:
-        for j in range(len(el._connectivity)):
-            el._connectivity[j] -= sum(
-                [el._connectivity[j] > (i-1) for i in skipped_tags]
-            )
-    
+        el._connectivity = renumerate_element(el._connectivity, skipped_tags)
+        
+
+@jit(int64[:](int64[:], int64[:]), nopython=True)
+def renumerate_element(connectivity, skipped_tags):
+    for j in range((skipped_tags).shape[0]):
+        connectivity -= ( connectivity > (skipped_tags[j] -1 ))   
+    return connectivity
+       
 
 gmshTypes = {
     1: elements.Line1,
