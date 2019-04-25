@@ -15,6 +15,10 @@ class MeshFormatError(Error):
    """Rised when error in mesh file is found"""
    pass
 
+class MeshError(Error):
+   """Rised when error in mesh specification is found"""
+   pass
+
 class FieldOperationError(Error):
    """
    Raised when illegal field operation is performed

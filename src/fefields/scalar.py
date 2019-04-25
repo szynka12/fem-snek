@@ -62,4 +62,19 @@ class ScalarField:
     def __add__(self, scalar):
         if not isinstance(scalar, Scalar):
             self.isCompatible(scalar)
-        return ScalarField(self._value + scalar._value, self._region)       
+        return ScalarField(self._value + scalar._value, self._region)
+    
+
+
+class InternalScalarField(ScalarField):
+    def __init__(self, femesh, value, index, name=False):
+        if femesh._internalMesh[index]._node_tags.shape[0] != value.shape[0]:
+            raise FieldOperationError('Invalid number of field values')
+        super().__init__(value, ('i', index), name)
+        
+        
+class BoundaryScalarField(ScalarField):
+    def __init__(self, femesh, value, index, name=False):
+        if femesh._boundaryMesh[index]._node_tags.shape[0] != value.shape[0]:
+            raise FieldOperationError('Invalid number of field values')
+        super().__init__(value, ('b', index), name)

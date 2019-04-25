@@ -15,6 +15,7 @@
 
 ## Imports ---------------------------------------------------------------------
 from numpy import array, unique, int64, empty, append
+from src.io.error import MeshError
 
 ## Class definition ------------------------------------------------------------
 
@@ -87,7 +88,13 @@ class FeMesh:
     
     #* Getters ------------------------------------------  
     def n_nodes(self): return self._nodes.shape[0]
-     
+    
+    def name2boundary_idx(self, name):
+        for i in range(len(self._boundaryMesh)):
+            if (name == self._boundaryMesh[i]._id):
+                return i
+        else:
+            raise MeshError('No boundary named <' + name + '> found!')
         
 class Mesh:
     __slots__: (
