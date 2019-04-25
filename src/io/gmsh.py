@@ -14,6 +14,7 @@
 import src.femCore.elements as elements
 import numpy as np
 from src.femMesh.feMesh import FeMesh
+from src.io.error import MeshFormatError
 
 #*******************************************************************************
 
@@ -89,7 +90,9 @@ def read_MeshFormat(file, data):
     '''
     format = file.readline()
     format = format.split(' ')
-    assert file.readline() == '$EndMeshFormat\n'
+    
+    
+    
     data['version'] = 'MSH ' + format[0] + ' ASCII'
 
 
@@ -114,7 +117,7 @@ def read_PhysicalNames(file, data):
             int(entity_phys_info[0])][
                 int(entity_phys_info[1])] = entity_phys_info[2][1:-1]
     
-    assert file.readline() == '$EndPhysicalNames\n'
+    check_ending('$EndPhysicalNames\n', file.readline())
 
 
 def read_Entities(file, data):
@@ -160,17 +163,14 @@ def read_Entities(file, data):
             data['entities'][2][i+1] = data['phys_names'][2][surface[8]]
         else:
             data['entities'][2][i+1] = surface[8]
-        
-        
-        
     
     data['entities'][3] = {}
     for i in range(data['#volumes']):
         volume = [int(float(i)) for i in file.readline()[:-2].split(' ')]
         data['entities'][3][i+1] = volume[8]
-        
-    while(file.readline() != '$EndEntities\n'):
-        pass
+    
+    check_ending('$EndEntities\n', file.readline())    
+    
 
 
 def read_Nodes(file, data):
@@ -194,7 +194,8 @@ def read_Nodes(file, data):
             node_list[:,j] =  [float(node[0]), float(node[1]), float(node[2])]
             j += 1
     
-    assert file.readline()=='$EndNodes\n'
+    check_ending('$EndNodes\n', file.readline()) 
+   
             
     data['nodes'] = node_list
     data['node_tags'] = node_tags
@@ -227,7 +228,8 @@ def read_Elements(file, data):
             
         data['element_lists'].append(element_list)
     
-    assert file.readline()=='$EndElements\n'
+    check_ending('$EndElements\n', file.readline()) 
+   
         
         
 #       Helpers
@@ -308,3 +310,8 @@ def get_section_reader(file, section_name):
 
     
     return gmshSections.get(section_name, skip_section)
+
+def check_ending(name, string):
+    if not string == name:
+        raise MeshFormatError('Expected <'+ name.rstrip('\n') +'>, got: <' + 
+                              string.rstrip('\n') + '>')
