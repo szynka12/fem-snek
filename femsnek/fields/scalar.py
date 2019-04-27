@@ -1,52 +1,61 @@
-###################################################################             
+# ##################################################################             
 #        ____                                            __       #
 #       / __/___   ____ ___          _____ ____   ___   / /__     #
 #      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/     #
 #     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<        #
 #    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|       #
 #                                                                 #
-###################################################################
+# ##################################################################
 
-#-------------------------------------------------------------------------------
-## Imports 
-#-------------------------------------------------------------------------------
-from numpy import array as np_array
+# -------------------------------------------------------------------------------
+# Imports
+# -------------------------------------------------------------------------------
+from numpy import ndarray
 from src.io.stream import WritableBase
 from src.fefields import ScalarFieldEnumerator
 from src.io.error import FieldOperationError
 
+
 class Scalar(WritableBase):
     __slots__ = (
-        '_value',
-        '_name'
-    )
-    def __init__(self, value):
+            '_value',
+            '_name'
+            )
+
+    def __init__(self, value: float):
+        """
+        Creates instance of Scalar object
+        """
         try:
             self._value = float(value)
-        except TypeError: 
+        except TypeError:
             print('Scalar input must be a single value')
         self._name = str(self._value)
-            
+
     def __add__(self, scalar):
         if isinstance(scalar, Scalar):
             return Scalar(self._value + scalar._value)
         elif isinstance(scalar, ScalarField):
             return ScalarField(self._value + scalar._value, scalar._region)
         else:
-            raise TypeError('Can\'t add scalar and' +  str(type(scalar)) )
-    
+            raise TypeError('Can\'t add scalar and' + str(type(scalar)))
+
     def __repr__(self):
         return 'Scalar(' + str(self._value) + ')'
-            
-            
+
+
 class ScalarField:
     __slots__ = (
-        '_value',
-        '_region',
-        '_name'
-    )
-    def __init__(self, value, region, name=False):
-        self._value = np_array(value)
+            '_value',
+            '_region',
+            '_name'
+            )
+
+    def __init__(self, value: ndarray, region: tuple, name: str = False):
+        """
+        Creates instance of ScalarField class
+        """
+        self._value = value
         self._region = region
         if name:
             try:
@@ -55,19 +64,18 @@ class ScalarField:
                 pass
         else:
             self._name = 'ScalarF' + str(
-                ScalarFieldEnumerator.getInstance().inc())   
-    
-    def isCompatible(self, scalar_field):
-        if (isinstance(scalar_field, ScalarField) and 
-            self._region == scalar_field._region):
-            raise FieldOperationError('Cant operate on ' + str(type(self)) + 
+                    ScalarFieldEnumerator.getInstance().inc())
+
+    def is_compatible(self, scalar_field):
+        if (isinstance(scalar_field, ScalarField) and
+                self._region == scalar_field._region):
+            raise FieldOperationError('Cant operate on ' + str(type(self)) +
                                       ' and ' + str(type(scalar_field)) + '!')
-        
+
     def __add__(self, scalar):
         if not isinstance(scalar, Scalar):
-            self.isCompatible(scalar)
+            self.is_compatible(scalar)
         return ScalarField(self._value + scalar._value, self._region)
-    
 
 
 class InternalScalarField(ScalarField):
@@ -75,8 +83,8 @@ class InternalScalarField(ScalarField):
         if femesh._internalMesh[index]._node_tags.shape[0] != value.shape[0]:
             raise FieldOperationError('Invalid number of field values')
         super().__init__(value, ('i', index), name)
-        
-        
+
+
 class BoundaryScalarField(ScalarField):
     def __init__(self, femesh, value, index, name=False):
         if femesh._boundaryMesh[index]._node_tags.shape[0] != value.shape[0]:

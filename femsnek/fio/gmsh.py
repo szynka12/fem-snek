@@ -11,10 +11,10 @@
 ## Imports 
 #-------------------------------------------------------------------------------
 
-import src.femCore.elements as elements
+import femsnek.core.elements as elements
 import numpy as np
-from src.femMesh.feMesh import FeMesh
-from src.io.error import MeshFormatError
+from femsnek.mesh.feMesh import FeMesh
+from femsnek.io.error import MeshFormatError
 
 #*******************************************************************************
 
