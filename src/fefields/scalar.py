@@ -10,11 +10,12 @@
 #-------------------------------------------------------------------------------
 ## Imports 
 #-------------------------------------------------------------------------------
-import numpy as np
+from numpy import array as np_array
+from src.io.stream import WritableBase
 from src.fefields import ScalarFieldEnumerator
 from src.io.error import FieldOperationError
 
-class Scalar:
+class Scalar(WritableBase):
     __slots__ = (
         '_value',
         '_name'
@@ -32,7 +33,10 @@ class Scalar:
         elif isinstance(scalar, ScalarField):
             return ScalarField(self._value + scalar._value, scalar._region)
         else:
-            raise TypeError(('Can\'t add scalar and' +  str(type(scalar)) )) 
+            raise TypeError('Can\'t add scalar and' +  str(type(scalar)) )
+    
+    def __repr__(self):
+        return 'Scalar(' + str(self._value) + ')'
             
             
 class ScalarField:
@@ -42,7 +46,7 @@ class ScalarField:
         '_name'
     )
     def __init__(self, value, region, name=False):
-        self._value = value
+        self._value = np_array(value)
         self._region = region
         if name:
             try:
