@@ -9,6 +9,7 @@
 
 from src.femCore.assemblerBase import AssemblerBase
 import scipy.sparse as sp
+from src.femCore.quadratures import GaussTriangle2D
 
 
 class PoissonAssembler(AssemblerBase):
@@ -23,6 +24,8 @@ class PoissonAssembler(AssemblerBase):
         print("Triangle 2D assemblation")
 
         tags = connectivity._tags
+
+        quadr = GaussTriangle2D(order=2)
 
         # loop over elements
         for nEl in range(connectivity.n_elements()):
