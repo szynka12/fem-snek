@@ -9,8 +9,9 @@
 
 from numpy import array
 
+
 class QuadratureBase(object):
-    __slots__ = ("points","weights")
+    __slots__ = ("points", "weights")
 
     def __init__(self):
         pass
