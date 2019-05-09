@@ -1,4 +1,4 @@
-import src.fefields.scalar as sf
+import femsnek.fields.scalar as sf
 import numpy as np
 
 internal0 = ('i', 0)

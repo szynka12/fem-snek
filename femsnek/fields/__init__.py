@@ -6,7 +6,7 @@
 #    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|       #
 #                                                                 #
 ###################################################################
-import src.python.pattern as pat
+import femsnek.python.pattern as pat
 
 class ScalarFieldEnumerator(pat.Singleton):
     __num = 0

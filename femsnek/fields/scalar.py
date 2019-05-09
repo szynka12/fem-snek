@@ -11,9 +11,10 @@
 # Imports
 # -------------------------------------------------------------------------------
 from numpy import ndarray
-from src.io.stream import WritableBase
-from src.fefields import ScalarFieldEnumerator
-from src.io.error import FieldOperationError
+from femsnek.fio.stream import WritableBase
+from femsnek.fields import ScalarFieldEnumerator
+from femsnek.fio.error import FieldOperationError
+from femsnek.mesh.feMesh import FeMesh
 
 
 class Scalar(WritableBase):
@@ -32,13 +33,19 @@ class Scalar(WritableBase):
             print('Scalar input must be a single value')
         self._name = str(self._value)
 
-    def __add__(self, scalar):
-        if isinstance(scalar, Scalar):
-            return Scalar(self._value + scalar._value)
-        elif isinstance(scalar, ScalarField):
-            return ScalarField(self._value + scalar._value, scalar._region)
+    def __add__(self, rhs):
+        """
+        Addition of two Scalar objects or Scalar and ScalarField
+
+        :param rhs: Scalar or ScalarField
+        :return: Scalar or ScalarField
+        """
+        if isinstance(rhs, Scalar):
+            return Scalar(self._value + rhs._value)
+        elif isinstance(rhs, ScalarField):
+            return ScalarField(self._value + rhs._value, rhs._region)
         else:
-            raise TypeError('Can\'t add scalar and' + str(type(scalar)))
+            raise TypeError('Can\'t add scalar and' + str(type(rhs)))
 
     def __repr__(self):
         return 'Scalar(' + str(self._value) + ')'
@@ -54,6 +61,7 @@ class ScalarField:
     def __init__(self, value: ndarray, region: tuple, name: str = False):
         """
         Creates instance of ScalarField class
+        :rtype: ScalarField
         """
         self._value = value
         self._region = region
@@ -66,27 +74,62 @@ class ScalarField:
             self._name = 'ScalarF' + str(
                     ScalarFieldEnumerator.getInstance().inc())
 
-    def is_compatible(self, scalar_field):
-        if (isinstance(scalar_field, ScalarField) and
-                self._region == scalar_field._region):
+    def region_check(self, scalar_field) -> None:
+        """
+        Raises FieldOperationError() when fields have different regions
+
+        :type scalar_field: ScalarField
+        """
+        if isinstance(scalar_field, ScalarField) and self._region != scalar_field._region:
             raise FieldOperationError('Cant operate on ' + str(type(self)) +
                                       ' and ' + str(type(scalar_field)) + '!')
 
-    def __add__(self, scalar):
-        if not isinstance(scalar, Scalar):
-            self.is_compatible(scalar)
-        return ScalarField(self._value + scalar._value, self._region)
+    def __add__(self, rhs):
+        if isinstance(rhs, Scalar):
+            return ScalarField(self._value + rhs._value, self._region)
+        elif isinstance(rhs, ScalarField):
+            self.region_check(rhs)
+            return ScalarField(self._value + rhs._value, self._region)
+        else:
+            raise TypeError('Can\'t add ScalarField and' + str(type(rhs)))
 
 
 class InternalScalarField(ScalarField):
-    def __init__(self, femesh, value, index, name=False):
-        if femesh._internalMesh[index]._node_tags.shape[0] != value.shape[0]:
+    """
+    Class defining scalar fields on internal parts of finite element mesh.
+    """
+    def __init__(self, mesh: FeMesh, value: ndarray, index: int, name: str = False):
+        """
+        Creates instance of InternalScalarField object.
+
+        :param mesh: Finite element mesh
+        :param value: Nodal values of the field
+        :param index: Index of internal mesh region
+        :param name: Name of the field
+        :returns A scalar Field with nodal values specified by value:
+        :rtype: ScalarField
+        """
+        if mesh._internalMesh[index]._node_tags.shape[0] != value.shape[0]:
             raise FieldOperationError('Invalid number of field values')
         super().__init__(value, ('i', index), name)
 
 
 class BoundaryScalarField(ScalarField):
-    def __init__(self, femesh, value, index, name=False):
-        if femesh._boundaryMesh[index]._node_tags.shape[0] != value.shape[0]:
+    """
+    Class defining scalar fields on boundary parts of finite element mesh.
+    """
+
+    def __init__(self, mesh: FeMesh, value: ndarray, index: int, name: str = False):
+        """
+        Creates instance of BoundaryScalarField object.
+
+        :param mesh: Finite element mesh
+        :param value: Nodal values of the field
+        :param index: Index of boundary mesh region
+        :param name: Name of the field
+        :returns A scalar Field with nodal values specified by value:
+        :rtype: ScalarField
+        """
+        if mesh._boundaryMesh[index]._node_tags.shape[0] != value.shape[0]:
             raise FieldOperationError('Invalid number of field values')
         super().__init__(value, ('b', index), name)

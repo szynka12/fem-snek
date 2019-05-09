@@ -8,13 +8,11 @@
 ###################################################################
 
 
+import femsnek.fio.vtk as vtk
+import femsnek.fio.gmsh as gmsh
 
-import src.io.vtk as vtk
-import src.io.gmsh as gmsh
 
 femesh = gmsh.read('msh.gmsh/named.msh')
-
-
 
 # import elements
 # nodes = array([[0, 1, 1, 0, 0.5], [0, 0, 1, 1, 2], [0, 0, 0, 0, 0]])
@@ -32,10 +30,6 @@ femesh = gmsh.read('msh.gmsh/named.msh')
 #                   nodes,
 #                   e_list,
 #                   id_list)       
-       
 
 
-
-vtk.write('finaltest/test', femesh)
-
-
+vtk.write('final/test', femesh)
