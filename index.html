@@ -358,6 +358,74 @@ Attributes:</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="femsnek.mesh.feMesh.FeMesh.n_nodes">
+<code class="descname">n_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#femsnek.mesh.feMesh.FeMesh.n_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of nodes in the mesh</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of nodes in the mesh</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.mesh.feMesh.FeMesh.name2boundary_idx">
+<code class="descname">name2boundary_idx</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#femsnek.mesh.feMesh.FeMesh.name2boundary_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns index of boundary mesh, given its name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – name of the boundary mesh e.g. ‘wall’</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">index of boundary</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="femsnek.mesh.feMesh.Mesh">
+<em class="property">class </em><code class="descclassname">femsnek.mesh.feMesh.</code><code class="descname">Mesh</code><span class="sig-paren">(</span><em>lists: list</em>, <em>mesh_id: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.mesh.feMesh.Mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>General mesh class, holds elements of one parametric dimension</p>
+<p>Attributes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><cite>_connectivityLists: list&lt;femsnek.core.elements.connectivityList&gt;</cite> - list of connectivity lists</li>
+<li><cite>_id</cite> - mesh id</li>
+<li><cite>_node_tags</cite> - nodes that are mentioned in _connectivityLists</li>
+</ul>
+</div></blockquote>
+<dl class="method">
+<dt id="femsnek.mesh.feMesh.Mesh.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>lists: list</em>, <em>mesh_id: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.mesh.feMesh.Mesh.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs instance of Mesh class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lists</strong> – list of elements connectivity lists</li>
+<li><strong>mesh_id</strong> – physical id of the mesh</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="femsnek.mesh.feMesh.Mesh.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#femsnek.mesh.feMesh.Mesh.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
