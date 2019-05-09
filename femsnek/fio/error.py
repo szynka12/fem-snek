@@ -7,35 +7,25 @@
 #                                                                 #
 ###################################################################
 
+class Error(Exception):
+   """Base class for other exceptions"""
+   pass
 
+class MeshFormatError(Error):
+   """Rised when error in mesh file is found"""
+   pass
 
-import src.io.vtk as vtk
-import src.io.gmsh as gmsh
+class MeshError(Error):
+   """Rised when error in mesh specification is found"""
+   pass
 
-femesh = gmsh.read('msh.gmsh/named.msh')
-
-
-
-# import elements
-# nodes = array([[0, 1, 1, 0, 0.5], [0, 0, 1, 1, 2], [0, 0, 0, 0, 0]])
-# ver = 'syntetic'
-# tri = elements.ListTri1(1)
-# quad = elements.ListQuad1(1)
-
-# tri[0] = [3, 2, 4]
-# quad[0] = [0, 1, 2, 3]
-
-# e_list = [quad, tri]
-# id_list = [1, 1]
-
-# femesh =  FeMesh(ver,
-#                   nodes,
-#                   e_list,
-#                   id_list)       
-       
-
-
-
-vtk.write('finaltest/test', femesh)
-
+class FieldOperationError(Error):
+   """
+   Raised when illegal field operation is performed
+   
+   Examples:
+   <Scalar> + <Vector>
+   div(<Scalar>)
+   """
+   pass
 
