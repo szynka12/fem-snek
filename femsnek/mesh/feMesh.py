@@ -14,12 +14,14 @@
 #TODO IO package
 
 ## Imports ---------------------------------------------------------------------
-from numpy import array
+from numpy import array, unique, int64, empty, append
+from src.io.error import MeshError
 
 ## Class definition ------------------------------------------------------------
 
 # main mesh class
 class FeMesh:
+    #* Fields slots------------------------------------------ 
     __slots__ = (
         '_info',
         '_nodes',
@@ -27,6 +29,7 @@ class FeMesh:
         '_boundaryMesh'
     )
     
+    #* Constructor ------------------------------------------
     def __init__(self,info, nodes, element_lists, physical_ids):
         self._info = info
         self._nodes = nodes
@@ -52,7 +55,7 @@ class FeMesh:
             same_ids = [i for (i, id) in enumerate(b_ids) if id == b_ids[0]]
             
             self._boundaryMesh.append(
-                                Mesh(self._nodes.view(),
+                                Mesh(
                                 [b_lists[i] for i in same_ids],
                                 b_ids[0]   
                                 )
@@ -71,7 +74,7 @@ class FeMesh:
         while i_ids:
             same_ids = [i for (i, id) in enumerate(i_ids) if id == i_ids[0]]
             self._internalMesh.append(
-                                Mesh(self._nodes.view(),
+                                Mesh(
                                 [i_lists[i] for i in same_ids],
                                 i_ids[0]   
                                 )
@@ -82,25 +85,30 @@ class FeMesh:
         
         self._internalMesh = tuple(self._internalMesh)
         self._boundaryMesh = tuple(self._boundaryMesh)
-        
+    
+    #* Getters ------------------------------------------  
     def n_nodes(self): return self._nodes.shape[0]
-     
+    
+    def name2boundary_idx(self, name):
+        for i in range(len(self._boundaryMesh)):
+            if (name == self._boundaryMesh[i]._id):
+                return i
+        else:
+            raise MeshError('No boundary named <' + name + '> found!')
         
 class Mesh:
     __slots__: (
         '_connectivityLists',
         '_id',
-        '_ref_nodes'
+        '_node_tags'
     )
     
-    def __init__(self, ref_nodes,lists, id):
-        self._ref_nodes = ref_nodes
+    def __init__(self,lists, id):
         self._connectivityLists = tuple(lists)
-        self._id = id    
-    
-        
-    
-
+        self._id = id
+        self._node_tags = empty((1,0), dtype=int64)
+        for l in lists:
+            self._node_tags = append(self._node_tags, unique(l._tags[:]))
            
 ## Helper functions ------------------------------------------------------------
 
