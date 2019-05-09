@@ -1,0 +1,449 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Documentation for the Code &#8212; fem-snek v0.01 documentation</title>
+    <link rel="stylesheet" href="static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="static/documentation_options.js"></script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">fem-snek v0.01 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="documentation-for-the-code">
+<h1>Documentation for the Code<a class="headerlink" href="#documentation-for-the-code" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-femsnek">
+<span id="fem-snek-main"></span><h2>fem-snek main<a class="headerlink" href="#module-femsnek" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-femsnek.core">
+<span id="core"></span><h3>Core<a class="headerlink" href="#module-femsnek.core" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-femsnek.core.elements">
+<span id="elements"></span><h4>Elements<a class="headerlink" href="#module-femsnek.core.elements" title="Permalink to this headline">¶</a></h4>
+<span class="target" id="module-elements"></span><dl class="class">
+<dt id="femsnek.core.elements.ConnectivityList">
+<em class="property">class </em><code class="descclassname">femsnek.core.elements.</code><code class="descname">ConnectivityList</code><span class="sig-paren">(</span><em>n_elem: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.core.elements.ConnectivityList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for defining connectivity list of certain element type.</p>
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.__getitem__">
+<code class="descname">__getitem__</code><span class="sig-paren">(</span><em>idx: int</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#femsnek.core.elements.ConnectivityList.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get node tags of nodes creating chosen element in the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>idx</strong> – element index (from 0 to number of elements - 1)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array with node tags</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_elem: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.core.elements.ConnectivityList.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates instance of ConncetivityList object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_elem</strong> – number of elements</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ConnectivityList object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#femsnek.core.elements.ConnectivityList" title="femsnek.core.elements.ConnectivityList">ConnectivityList</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.__setitem__">
+<code class="descname">__setitem__</code><span class="sig-paren">(</span><em>idx: int</em>, <em>connectivity: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#femsnek.core.elements.ConnectivityList.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set node tags of nodes creating chosen element in the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>idx</strong> – element index (from 0 to number of elements - 1)</li>
+<li><strong>connectivity</strong> – Array with node tags</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.dim">
+<code class="descname">dim</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#femsnek.core.elements.ConnectivityList.dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns physical dimension of element type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">element dimension.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+<p>An example would be 3 for tetrahedral element or 2 for quad.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.el_type">
+<code class="descname">el_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#femsnek.core.elements.ConnectivityList.el_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of element type stored in the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">element type number</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.n_elements">
+<code class="descname">n_elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#femsnek.core.elements.ConnectivityList.n_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of elements in connectivity list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">number of elements in connectivity list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.core.elements.ConnectivityList.n_nodes">
+<code class="descname">n_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#femsnek.core.elements.ConnectivityList.n_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of nodes per element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">number of nodes per element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="femsnek.core.elements.ListLine1">
+<em class="property">class </em><code class="descclassname">femsnek.core.elements.</code><code class="descname">ListLine1</code><span class="sig-paren">(</span><em>n_elem: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.core.elements.ListLine1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class defining connectivity for first order line element.</p>
+<p>Private properties:</p>
+<ul class="simple">
+<li>dimension = 1</li>
+<li>nNodes = 2</li>
+<li>type = 1</li>
+</ul>
+<p>Derived from <a class="reference internal" href="#femsnek.core.elements.ConnectivityList" title="femsnek.core.elements.ConnectivityList"><code class="xref py py-class docutils literal notranslate"><span class="pre">femsnek.core.elements.ConnectivityList</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="femsnek.core.elements.ListQuad1">
+<em class="property">class </em><code class="descclassname">femsnek.core.elements.</code><code class="descname">ListQuad1</code><span class="sig-paren">(</span><em>n_elem: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.core.elements.ListQuad1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class defining connectivity for first order quadrilateral element.</p>
+<p>Private properties:</p>
+<ul class="simple">
+<li>dimension = 2</li>
+<li>nNodes = 4</li>
+<li>type = 3</li>
+</ul>
+<p>Derived from <a class="reference internal" href="#femsnek.core.elements.ConnectivityList" title="femsnek.core.elements.ConnectivityList"><code class="xref py py-class docutils literal notranslate"><span class="pre">femsnek.core.elements.ConnectivityList</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="femsnek.core.elements.ListTri1">
+<em class="property">class </em><code class="descclassname">femsnek.core.elements.</code><code class="descname">ListTri1</code><span class="sig-paren">(</span><em>n_elem: int</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.core.elements.ListTri1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class defining connectivity for first order triangular element.</p>
+<p>Private properties:</p>
+<ul class="simple">
+<li>dimension = 2</li>
+<li>nNodes = 3</li>
+<li>type = 2</li>
+</ul>
+<p>Derived from <a class="reference internal" href="#femsnek.core.elements.ConnectivityList" title="femsnek.core.elements.ConnectivityList"><code class="xref py py-class docutils literal notranslate"><span class="pre">femsnek.core.elements.ConnectivityList</span></code></a></p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-femsnek.fields">
+<span id="fields"></span><h3>Fields<a class="headerlink" href="#module-femsnek.fields" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-femsnek.fields.scalar">
+<span id="scalars-and-scalar-fields"></span><h4>Scalars and scalar fields<a class="headerlink" href="#module-femsnek.fields.scalar" title="Permalink to this headline">¶</a></h4>
+<dl class="class">
+<dt id="femsnek.fields.scalar.BoundaryScalarField">
+<em class="property">class </em><code class="descclassname">femsnek.fields.scalar.</code><code class="descname">BoundaryScalarField</code><span class="sig-paren">(</span><em>mesh: femsnek.mesh.feMesh.FeMesh</em>, <em>value: numpy.ndarray</em>, <em>index: int</em>, <em>name: str = False</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.BoundaryScalarField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class defining scalar fields on boundary parts of finite element mesh.</p>
+<dl class="method">
+<dt id="femsnek.fields.scalar.BoundaryScalarField.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>mesh: femsnek.mesh.feMesh.FeMesh</em>, <em>value: numpy.ndarray</em>, <em>index: int</em>, <em>name: str = False</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.BoundaryScalarField.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates instance of BoundaryScalarField object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mesh</strong> – Finite element mesh</li>
+<li><strong>value</strong> – Nodal values of the field</li>
+<li><strong>index</strong> – Index of boundary mesh region</li>
+<li><strong>name</strong> – Name of the field</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Returns A scalar Field with nodal values specified by value:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ScalarField</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="femsnek.fields.scalar.BoundaryScalarField.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#femsnek.fields.scalar.BoundaryScalarField.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="femsnek.fields.scalar.InternalScalarField">
+<em class="property">class </em><code class="descclassname">femsnek.fields.scalar.</code><code class="descname">InternalScalarField</code><span class="sig-paren">(</span><em>mesh: femsnek.mesh.feMesh.FeMesh</em>, <em>value: numpy.ndarray</em>, <em>index: int</em>, <em>name: str = False</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.InternalScalarField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class defining scalar fields on internal parts of finite element mesh.</p>
+<dl class="method">
+<dt id="femsnek.fields.scalar.InternalScalarField.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>mesh: femsnek.mesh.feMesh.FeMesh</em>, <em>value: numpy.ndarray</em>, <em>index: int</em>, <em>name: str = False</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.InternalScalarField.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates instance of InternalScalarField object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mesh</strong> – Finite element mesh</li>
+<li><strong>value</strong> – Nodal values of the field</li>
+<li><strong>index</strong> – Index of internal mesh region</li>
+<li><strong>name</strong> – Name of the field</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Returns A scalar Field with nodal values specified by value:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ScalarField</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="femsnek.fields.scalar.InternalScalarField.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#femsnek.fields.scalar.InternalScalarField.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="femsnek.fields.scalar.Scalar">
+<em class="property">class </em><code class="descclassname">femsnek.fields.scalar.</code><code class="descname">Scalar</code><span class="sig-paren">(</span><em>value: float</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.Scalar" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="femsnek.fields.scalar.Scalar.__add__">
+<code class="descname">__add__</code><span class="sig-paren">(</span><em>rhs</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.Scalar.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Addition of two Scalar objects or Scalar and ScalarField</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rhs</strong> – Scalar or ScalarField</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Scalar or ScalarField</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.fields.scalar.Scalar.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>value: float</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.Scalar.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates instance of Scalar object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="femsnek.fields.scalar.Scalar.__repr__">
+<code class="descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.fields.scalar.Scalar.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return repr(self).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-femsnek.mesh">
+<span id="mesh"></span><h3>Mesh<a class="headerlink" href="#module-femsnek.mesh" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-femsnek.mesh.feMesh">
+<span id="finite-elements-mesh"></span><h4>Finite elements mesh<a class="headerlink" href="#module-femsnek.mesh.feMesh" title="Permalink to this headline">¶</a></h4>
+<span class="target" id="module-feMesh"></span><dl class="class">
+<dt id="femsnek.mesh.feMesh.FeMesh">
+<em class="property">class </em><code class="descclassname">femsnek.mesh.feMesh.</code><code class="descname">FeMesh</code><span class="sig-paren">(</span><em>info: str</em>, <em>nodes: numpy.ndarray</em>, <em>element_lists: list</em>, <em>physical_ids: list</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.mesh.feMesh.FeMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class containing information about finite element mesh.</p>
+<p>This class contains information about finite element mesh.
+Attributes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><cite>_info: string</cite> - contains information about the mesh, input format etc</li>
+<li><cite>_nodes: np_array</cite> - table with node coordinates, its shape is equal to (3,nNodes)</li>
+<li><cite>_internalMesh: touple&lt;femsnek.feMesh.mesh&gt;</cite> - internal mesh objects</li>
+<li><cite>_boundary mesh: touple&lt;femsnek.feMesh.mesh&gt;</cite> - boundary mesh objects</li>
+</ul>
+</div></blockquote>
+<p>Each mesh partition can be described by region double: <cite>(‘i’/’b’, N)</cite>:
+- <cite>‘i’</cite> means internal and ‘b’ boundary
+- <cite>N</cite> number of the mesh</p>
+<dl class="method">
+<dt id="femsnek.mesh.feMesh.FeMesh.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>info: str</em>, <em>nodes: numpy.ndarray</em>, <em>element_lists: list</em>, <em>physical_ids: list</em><span class="sig-paren">)</span><a class="headerlink" href="#femsnek.mesh.feMesh.FeMesh.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs instance of feMesh class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>info</strong> – information about mesh version or original format</li>
+<li><strong>nodes</strong> – table with node coordinates, its shape is equal to (3,nNodes)</li>
+<li><strong>element_lists</strong> – list of femsnek.core.element.conectivityList</li>
+<li><strong>physical_ids</strong> – physical id of each element in element_lists</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+<div class="section" id="module-femsnek.fio">
+<span id="io"></span><h2>IO<a class="headerlink" href="#module-femsnek.fio" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Documentation for the Code</a><ul>
+<li><a class="reference internal" href="#module-femsnek">fem-snek main</a><ul>
+<li><a class="reference internal" href="#module-femsnek.core">Core</a><ul>
+<li><a class="reference internal" href="#module-femsnek.core.elements">Elements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-femsnek.fields">Fields</a><ul>
+<li><a class="reference internal" href="#module-femsnek.fields.scalar">Scalars and scalar fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-femsnek.mesh">Mesh</a><ul>
+<li><a class="reference internal" href="#module-femsnek.mesh.feMesh">Finite elements mesh</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-femsnek.fio">IO</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">fem-snek v0.01 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Wojciech Sadowski.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
+    </div>
+  </body>
+</html>
