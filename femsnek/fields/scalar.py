@@ -1,15 +1,19 @@
-# ##################################################################             
-#        ____                                            __       #
-#       / __/___   ____ ___          _____ ____   ___   / /__     #
-#      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/     #
-#     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<        #
-#    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|       #
-#                                                                 #
-# ##################################################################
+"""
+IGNORE: -----------------------------------------------------------
+        ____                                            __
+       / __/___   ____ ___          _____ ____   ___   / /__
+      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/
+     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<
+    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|
+    ~~~~~~~~~ Finite element method python package ~~~~~~~~~
 
-# -------------------------------------------------------------------------------
-# Imports
-# -------------------------------------------------------------------------------
+------------------------------------------------------------ IGNORE
+
+.. module:: scalar
+   :synopsis: Provides scalar field operation capabilities
+.. moduleauthor:: Wojciech Sadowski <wojciech1sadowski@gmail.com>
+"""
+
 from numpy import ndarray
 from femsnek.fio.stream import WritableBase
 from femsnek.fields import ScalarFieldEnumerator
@@ -18,6 +22,14 @@ from femsnek.mesh.feMesh import FeMesh
 
 
 class Scalar(WritableBase):
+    """
+    Class describing a single scalar e.g. 2, pi.
+
+    Attributes:
+
+        - `_value: float` - value held by scalar object
+        - `_name: str` - name of the scalar, generated automatically
+    """
     __slots__ = (
             '_value',
             '_name'
@@ -26,6 +38,8 @@ class Scalar(WritableBase):
     def __init__(self, value: float):
         """
         Creates instance of Scalar object
+
+        :param value: value held by scalar object
         """
         try:
             self._value = float(value)
@@ -47,7 +61,54 @@ class Scalar(WritableBase):
         else:
             raise TypeError('Can\'t add scalar and' + str(type(rhs)))
 
+    def __sub__(self, rhs):
+        """
+        Subtraction of two Scalar objects or Scalar and ScalarField
+
+        :param rhs: Scalar or ScalarField
+        :return: Scalar or ScalarField
+        """
+        if isinstance(rhs, Scalar):
+            return Scalar(self._value - rhs._value)
+        elif isinstance(rhs, ScalarField):
+            return ScalarField(self._value - rhs._value, rhs._region)
+        else:
+            raise TypeError('Can\'t subtract scalar and' + str(type(rhs)))
+
+    def __mul__(self, rhs):
+        """
+        Multiplication of two Scalar objects or Scalar and ScalarField
+
+        :param rhs: Scalar or ScalarField
+        :return: Scalar or ScalarField
+        """
+        if isinstance(rhs, Scalar):
+            return Scalar(self._value * rhs._value)
+        elif isinstance(rhs, ScalarField):
+            return ScalarField(self._value * rhs._value, rhs._region)
+        else:
+            raise TypeError('Can\'t multiply scalar and' + str(type(rhs)))
+
+    def __truediv__(self, rhs):
+        """
+        Division of two Scalar objects or Scalar and ScalarField
+
+        :param rhs: Scalar or ScalarField
+        :return: Scalar or ScalarField
+        """
+        if isinstance(rhs, Scalar):
+            return Scalar(self._value / rhs._value)
+        elif isinstance(rhs, ScalarField):
+            return ScalarField(self._value / rhs._value, rhs._region)
+        else:
+            raise TypeError('Can\'t divide scalar by' + str(type(rhs)))
+
     def __repr__(self):
+        """
+        Returns string representation of scalar object e.g: `'Scalar(2.0)'`
+
+        :return: String representation of scalar object
+        """
         return 'Scalar(' + str(self._value) + ')'
 
 

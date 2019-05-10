@@ -14,14 +14,10 @@ IGNORE: -----------------------------------------------------------
 .. moduleauthor:: Wojciech Sadowski <github.com/szynka12>
 """
 
-# Imports ---------------------------------------------------------------------
 from numpy import unique, int64, empty, append, ndarray
 from femsnek.fio.error import MeshError
 
 
-# Class definition ------------------------------------------------------------
-
-# main mesh class
 class FeMesh:
     """
     Class containing information about finite element mesh.
@@ -110,7 +106,7 @@ class FeMesh:
         self._internalMesh = tuple(self._internalMesh)
         self._boundaryMesh = tuple(self._boundaryMesh)
 
-    # Getters ------------------------------------------
+    # Getters --------------------------------------------------------------------
     def n_nodes(self) -> int:
         """
         Get number of nodes in the mesh
@@ -131,6 +127,7 @@ class FeMesh:
                 return i
         else:
             raise MeshError('No boundary named <' + name + '> found!')
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 class Mesh:

@@ -1,24 +1,37 @@
 """
+IGNORE: -----------------------------------------------------------
+        ____                                            __
+       / __/___   ____ ___          _____ ____   ___   / /__
+      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/
+     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<
+    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|
+    ~~~~~~~~~ Finite element method python package ~~~~~~~~~
+
+------------------------------------------------------------ IGNORE
+
 .. module:: elements
    :synopsis: All functions and element operations are defined here
-.. moduleauthor:: Wojciech Sadowski <github.com/szynka12>
+.. moduleauthor:: Wojciech Sadowski <wojciech1sadowski@gmail.com>
 """
 
-###################################################################
-#        ____                                            __       #
-#       / __/___   ____ ___          _____ ____   ___   / /__     #
-#      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/     #
-#     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<        #
-#    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|       #
-#                                                                 #
-###################################################################
-
 from numpy import zeros, int64, ndarray
+
+# Element signatures
+T_Line1 = 1
+T_Tri1 = 2
+T_Quad1 = 3
 
 
 class ConnectivityList:
     """
     Base class for defining connectivity list of certain element type.
+
+    Attributes:
+
+        -`_dimension: int` - dimension of element type
+        -`_nNodes: int` - number of nodes per one element
+        -`_type: int` - element type signature defined in `__init__.py of this package`
+        -`_tags: nparray` - tags of nodes that span elements, has shape equal `(_nNodes, nElem)`
     """
     __slots__ = (
                 '_tags'
@@ -40,9 +53,9 @@ class ConnectivityList:
 
     def __getitem__(self, idx: int) -> ndarray:
         """
-        Get node tags of nodes creating chosen element in the list.
+        Get node tags of nodes spanning chosen element in the list.
 
-        :param idx: element index (from 0 to number of elements - 1)
+        :param idx: element index (from 0 to number of elements)
         :return: Array with node tags
         """
         return self._tags[:, idx]
@@ -51,7 +64,7 @@ class ConnectivityList:
         """
         Set node tags of nodes creating chosen element in the list.
 
-        :param idx: element index (from 0 to number of elements - 1)
+        :param idx: element index (from 0 to number of elements)
         :param connectivity: Array with node tags
         """
 
@@ -97,8 +110,7 @@ class ListLine1(ConnectivityList):
     """
     Class defining connectivity for first order line element.
 
-    Private properties:
-
+    Attributes:
 
     * dimension = 1
     * nNodes = 2
@@ -110,14 +122,14 @@ class ListLine1(ConnectivityList):
 
     _dimension = 1
     _nNodes = 2
-    _type = 1
+    _type = T_Line1
 
 
 class ListTri1(ConnectivityList):
     """
     Class defining connectivity for first order triangular element.
 
-    Private properties:
+    Attributes:
 
     * dimension = 2
     * nNodes = 3
@@ -129,14 +141,14 @@ class ListTri1(ConnectivityList):
 
     _dimension = 2
     _nNodes = 3
-    _type = 2
+    _type = T_Tri1
 
 
 class ListQuad1(ConnectivityList):
     """
     Class defining connectivity for first order quadrilateral element.
 
-    Private properties:
+    Attributes:
 
     * dimension = 2
     * nNodes = 4
@@ -148,4 +160,4 @@ class ListQuad1(ConnectivityList):
 
     _dimension = 2
     _nNodes = 4
-    _type = 3
+    _type = T_Quad1
