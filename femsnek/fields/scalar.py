@@ -19,9 +19,10 @@ from femsnek.fio.stream import WritableBase
 from femsnek.fields import ScalarFieldEnumerator
 from femsnek.fio.error import FieldOperationError
 from femsnek.mesh.feMesh import FeMesh
+from femsnek.fields.field import FieldBase
 
 
-class Scalar(WritableBase):
+class Scalar(FieldBase, WritableBase):
     """
     Class describing a single scalar e.g. 2, pi.
 
@@ -46,6 +47,13 @@ class Scalar(WritableBase):
         except TypeError:
             print('Scalar input must be a single value')
         self._name = str(self._value)
+
+    # Helpers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
+    def get_name(self):
+        return self._name
+
+    def components(self):
+        return self
 
     def __add__(self, rhs):
         """
@@ -112,7 +120,7 @@ class Scalar(WritableBase):
         return 'Scalar(' + str(self._value) + ')'
 
 
-class ScalarField:
+class ScalarField(FieldBase, WritableBase):
     __slots__ = (
             '_value',
             '_region',
@@ -135,6 +143,12 @@ class ScalarField:
             self._name = 'ScalarF' + str(
                     ScalarFieldEnumerator.getInstance().inc())
 
+    def get_name(self):
+        return self._name
+
+    def components(self):
+        return self
+
     def region_check(self, scalar_field) -> None:
         """
         Raises FieldOperationError() when fields have different regions
@@ -154,7 +168,25 @@ class ScalarField:
         else:
             raise TypeError('Can\'t add ScalarField and' + str(type(rhs)))
 
+    def __repr__(self):
+        """
+        Returns string representation of ScalarField object
 
+        :return: String representation of ScalarField object
+        """
+        raise NotImplemented
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# Scalar shortcuts:
+zero = Scalar(0.0)
+one = Scalar(1.0)
+pi = Scalar(3.141592653589793238462643383279502884197169399375105820974944592)
+e = Scalar(2.718281828459045235360287471352662497757247093699959574966967627)
+
+
+# Helper classes ---------------------------------
 class InternalScalarField(ScalarField):
     """
     Class defining scalar fields on internal parts of finite element mesh.
@@ -173,6 +205,7 @@ class InternalScalarField(ScalarField):
         if mesh._internalMesh[index]._node_tags.shape[0] != value.shape[0]:
             raise FieldOperationError('Invalid number of field values')
         super().__init__(value, ('i', index), name)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 class BoundaryScalarField(ScalarField):
@@ -194,3 +227,4 @@ class BoundaryScalarField(ScalarField):
         if mesh._boundaryMesh[index]._node_tags.shape[0] != value.shape[0]:
             raise FieldOperationError('Invalid number of field values')
         super().__init__(value, ('b', index), name)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

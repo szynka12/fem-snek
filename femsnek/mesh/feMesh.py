@@ -28,7 +28,7 @@ class FeMesh:
         - `_info: string` - contains information about the mesh, input format etc
         - `_nodes: np_array` - table with node coordinates, its shape is equal to (3,nNodes)
         - `_internalMesh: touple<femsnek.feMesh.mesh>` - internal mesh objects
-        - `_boundary mesh: touple<femsnek.feMesh.mesh>` - boundary mesh objects
+        - `_boundar mesh: touple<femsnek.feMesh.mesh>` - boundary mesh objects
 
     Each mesh partition can be described by region double: `('i'/'b', N)`:
     - `'i'` means internal and 'b' boundary
@@ -42,7 +42,6 @@ class FeMesh:
             '_boundaryMesh'
             )
 
-    # Constructor ------------------------------------------
     def __init__(self, info: str, nodes: ndarray, element_lists: list, physical_ids: list):
         """
         Constructs instance of feMesh class.
@@ -107,13 +106,35 @@ class FeMesh:
         self._boundaryMesh = tuple(self._boundaryMesh)
 
     # Getters --------------------------------------------------------------------
-    def n_nodes(self) -> int:
+    def n_nodes(self, region: (str, int) = ('', -1)) -> int:
         """
         Get number of nodes in the mesh
 
         :return: Number of nodes in the mesh
         """
+        if region != ('', -1):
+            if region[0] is 'i':
+                return self._internalMesh[region[1]].n_nodes()
+            else:
+                return self._boundaryMesh[region[1]].n_nodes()
         return self._nodes.shape[0]
+
+    def name2region(self, name: str) -> (str, int):
+        """
+        Returns region touple of mesh, given its name.
+
+        :param name: name of the boundary mesh e.g. 'wall'
+        :return: region touple of chosen mesh
+        """
+        for i in range(len(self._boundaryMesh)):
+            if name == self._boundaryMesh[i]._id:
+                return 'b', i
+        else:
+            for i in range(len(self._internalMesh)):
+                if name == self._internalMesh[i]._id:
+                    return 'i', i
+            else:
+                raise MeshError('No boundary named <' + name + '> found!')
 
     def name2boundary_idx(self, name: str) -> int:
         """
@@ -158,3 +179,11 @@ class Mesh:
         self._node_tags = empty((1, 0), dtype=int64)
         for l in lists:
             self._node_tags = append(self._node_tags, unique(l._tags[:]))
+
+    def n_nodes(self) -> int:
+        """
+        Get number of nodes in the mesh
+
+        :return: Number of nodes in the mesh
+        """
+        return self._node_tags.shape[0]
