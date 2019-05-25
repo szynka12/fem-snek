@@ -16,17 +16,17 @@ class OStream(object):
         self.output = output
         self.format = '%s'
 
-    def __lshift__(self, input):
-        if isinstance(input, IOManipulator):
-            input.do(self)
-        elif isinstance(input, WritableBase):
+    def __lshift__(self, stream_input):
+        if isinstance(stream_input, IOManipulator):
+            stream_input.do(self)
+        elif isinstance(stream_input, WritableBase) or isinstance(stream_input, (int, float, str)):
 
-            self.output.write(self.format % input)
+            self.output.write(self.format % stream_input)
             self.format = '%s'
             return self
         else:
             raise TypeError('OStream() input must be derived from WritableBase or IOManipulator classes!\n '
-                            'Encountered object: ' + str(type(input)))
+                            'Encountered object: ' + str(type(stream_input)))
 
 
 class IOManipulator(object):
