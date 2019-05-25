@@ -1,31 +1,27 @@
-###################################################################             
-#        ____                                            __       #
-#       / __/___   ____ ___          _____ ____   ___   / /__     #
-#      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/     #
-#     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<        #
-#    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|       #
-#                                                                 #
-###################################################################
+"""
+IGNORE: -----------------------------------------------------------
+        ____                                            __
+       / __/___   ____ ___          _____ ____   ___   / /__
+      / /_ / _ \ / __ `__ \ ______ / ___// __ \ / _ \ / //_/
+     / __//  __// / / / / //_____/(__  )/ / / //  __// ,<
+    /_/   \___//_/ /_/ /_/       /____//_/ /_/ \___//_/|_|
+    ~~~~~~~~~ Finite element method python package ~~~~~~~~~
 
-# -------------------------------------------------------------------------------
-## Imports 
-# -------------------------------------------------------------------------------
+------------------------------------------------------------ IGNORE
+
+.. module:: gmsh
+   :synopsis: Provides IO functionality for gmsh mesh generator
+.. moduleauthor:: Wojciech Sadowski <wojciech1sadowski@gmail.com>
+"""
 
 import femsnek.core.elements as elements
 import numpy as np
-from femsnek.mesh.feMesh import FeMesh
 from femsnek.fio.error import MeshFormatError
+from _io import TextIOWrapper
 
-
-# *******************************************************************************
-
-# -------------------------------------------------------------------------------
-## Data 
-# -------------------------------------------------------------------------------
 
 # Dictionary [gmsh element type] -> fem-snek element type
-#   fem-snek element type is obtainable from connectivityList object
-
+# fem-snek element type is obtainable from connectivityList object
 gmshTypes = {
         1: elements.ListLine1,
         2: elements.ListTri1,
@@ -33,75 +29,44 @@ gmshTypes = {
         }
 
 
-# *******************************************************************************
-
-
-# -------------------------------------------------------------------------------
-## Functions
-# -------------------------------------------------------------------------------
-
-def read(filepath):  # str filepath -> FeMesh mesh
-    """
-        Importer of ascii .msh meshes.
-        
-        Imports meshes generated in Gmsh software. 
-        Supported version: MSH 4.1 
-        Supported elements:
-            - Line (2 node)
-            - Triangle (3 node)
-            - Quadrangle (4 node)
-    """
-
-    # dict that will be passed to any reader
-    data = {}
-
-    with open(filepath) as file:
-        while True:
-            section_name = file.readline()
-            if len(section_name) == 0: break
-
-            reader = get_section_reader(file, section_name)
-            reader(file, data)
-
-    return FeMesh(data['version'],
-                  np.array(data['nodes']),
-                  data['element_lists'],
-                  data['id_list'])
-
-
 #       Readers
 # ~~~~~~~~~~~~~~~~~~~~~~~
 
-def skip_section(file, data):
-    '''
+def skip_section(file: TextIOWrapper, data: dict):
+    """
     Skip section in .msh file
-    '''
-    while (file.readline()[0:4] != '$End'):
+
+    :param file: opened .msh file
+    :param data: dictionary with data describing mesh
+    """
+
+    while file.readline()[0:4] != '$End':
         pass
 
 
-def read_MeshFormat(file, data):
-    '''
+def read_MeshFormat(file: TextIOWrapper, data: dict):
+    """
     Read version of .msh file
-    
-    Input:
-        file - opened file
-        data - dictionary with all mesh data
-    '''
-    format = file.readline()
-    format = format.split(' ')
 
-    data['version'] = 'MSH ' + format[0] + ' ASCII'
+    :param file: opened .msh file
+    :param data: dictionary with data describing mesh
+    """
+
+    mesh_format = file.readline()
+    mesh_format = mesh_format.split(' ')
+
+    data['version'] = 'MSH ' + mesh_format[0] + ' ASCII'
+
+    check_ending('$EndMeshFormat\n', file.readline())
 
 
-def read_PhysicalNames(file, data):
-    '''
+def read_PhysicalNames(file: TextIOWrapper, data: dict):
+    """
     Read information about physical names of each entity
-    
-    Input:
-        file - opened file
-        data - dictionary with all mesh data
-    '''
+
+    :param file: opened .msh file
+    :param data: dictionary with data describing mesh
+    """
     n = int(file.readline()[:-1])
     data['phys_names'] = {}
     data['phys_names'][0] = {}
@@ -118,14 +83,13 @@ def read_PhysicalNames(file, data):
     check_ending('$EndPhysicalNames\n', file.readline())
 
 
-def read_Entities(file, data):
-    '''
+def read_Entities(file: TextIOWrapper, data: dict):
+    """
     Read information about entities
-    
-    Input:
-        file - opened file
-        data - dictionary with all mesh data
-    '''
+
+    :param file: opened .msh file
+    :param data: dictionary with data describing mesh
+    """
 
     entities = file.readline()
     entities = [int(i) for i in entities[:-1].split(' ')]
@@ -170,14 +134,13 @@ def read_Entities(file, data):
     check_ending('$EndEntities\n', file.readline())
 
 
-def read_Nodes(file, data):
-    '''
+def read_Nodes(file: TextIOWrapper, data: dict):
+    """
     Read Nodes section from .msh file
-    
-    Input:
-            file - opened file
-            data - dictionary
-    '''
+
+    :param file: opened .msh file
+    :param data: dictionary with data describing mesh
+    """
     n_entities, n_nodes = entity_block_info(file)
     node_list = np.empty((3, n_nodes))
     node_tags = []
@@ -197,14 +160,13 @@ def read_Nodes(file, data):
     data['node_tags'] = node_tags
 
 
-def read_Elements(file, data):
-    '''
+def read_Elements(file: TextIOWrapper, data: dict):
+    """
     Read Elements section from .msh file
-    
-    Input:
-            file - opened file
-            data - dictionary
-    '''
+
+    :param file: opened .msh file
+    :param data: dictionary with data describing mesh
+    """
     n_entities = entity_block_info(file)[0]
 
     data['element_lists'] = []
@@ -212,17 +174,17 @@ def read_Elements(file, data):
 
     for i in range(n_entities):
         n_elements, elements_str_list, el_type, tag, dim = parse_entity(file)
+        if dim != 0:
+            data['id_list'].append(
+                    data['entities'][dim][tag]
+                    )
+            element_list = gmshTypes[el_type](n_elements)
+            for j in range(n_elements):
+                el = elements_str_list[j]
+                connectivity = [(int(i) - 1) for i in el.split(' ')]
+                element_list[j] = connectivity[1:]
 
-        data['id_list'].append(
-                data['entities'][dim][tag]
-                )
-        element_list = gmshTypes[el_type](n_elements)
-        for j in range(n_elements):
-            el = elements_str_list[j]
-            connectivity = [(int(i) - 1) for i in el.split(' ')]
-            element_list[j] = connectivity[1:]
-
-        data['element_lists'].append(element_list)
+            data['element_lists'].append(element_list)
 
     check_ending('$EndElements\n', file.readline())
 
@@ -230,16 +192,13 @@ def read_Elements(file, data):
 #       Helpers
 # ~~~~~~~~~~~~~~~~~~~~~~~
 
-def entity_block_info(file):
-    '''
+def entity_block_info(file: TextIOWrapper) -> (int, int):
+    """
     Read information about current entity block
-    
-    Input:
-        file - opened file
-    Output:
-        number of entity blocks, 
-        number of objects
-    '''
+
+    :param file: opened .msh file
+    :return: number of entity blocks, number of objects
+    """
     block = file.readline()
     block = [int(i) for i in block[:-1].split(' ')]
 
@@ -247,7 +206,14 @@ def entity_block_info(file):
     return block[0], block[1]
 
 
-def parse_nodes(file, ref_node_tags):
+def parse_nodes(file: TextIOWrapper, ref_node_tags: list) -> list:
+    """
+    Parse one $Nodes entity block in .msh format
+
+    :param file: opened .msh file
+    :param ref_node_tags: mutable node tags list
+    :return: nodal coordinates as string
+    """
     info = file.readline()
     info = [int(i) for i in info[:-1].split(' ')]
 
@@ -266,7 +232,13 @@ def parse_nodes(file, ref_node_tags):
     return nodes
 
 
-def parse_entity(file):
+def parse_entity(file: TextIOWrapper) -> (int, list, int, int, int):
+    """
+    Parse one entity block in .msh format
+
+    :param file: opened .msh file
+    :return: number of objects, objects, objects type, entity tag, entity dimension
+    """
     info = file.readline()
     info = [int(i) for i in info[:-1].split(' ')]
 
@@ -283,32 +255,35 @@ def parse_entity(file):
     return n_object, objects, obj_type, entity_tag, entity_dimension
 
 
-def get_section_reader(file, section_name):
-    '''
-    Get appropiate reader for each gmsh section
-    
-    Input:
-        file - opened file
-    Output:
-        reader - function object  
-    '''
+def get_section_reader(section_name: str):
+    """
+    Get appropriate reader for each gmsh section
+
+    :param section_name: name of the current section
+    :return: section reader
+    """
+
     section_name = section_name[1:-1]
 
     # Dictionary [gmsh section name] -> section reader
     #   readers defined below
 
-    gmshSections = {
-            'MeshFormat'   : read_MeshFormat,
-            'Nodes'        : read_Nodes,
-            'Elements'     : read_Elements,
-            'Entities'     : read_Entities,
-            'PhysicalNames': read_PhysicalNames
-            }
+    gmsh_sections = {'MeshFormat':    read_MeshFormat,
+                     'Nodes':         read_Nodes,
+                     'Elements':      read_Elements,
+                     'Entities':      read_Entities,
+                     'PhysicalNames': read_PhysicalNames}
 
-    return gmshSections.get(section_name, skip_section)
+    return gmsh_sections.get(section_name, skip_section)
 
 
-def check_ending(name, string):
-    if not string == name:
-        raise MeshFormatError('Expected <' + name.rstrip('\n') + '>, got: <' +
+def check_ending(expected_name: str, string: str):
+    """
+    Check section ending
+
+    :param string: string from opened .msh file
+    :param expected_name: expected name of the current section ending
+    """
+    if not string == expected_name:
+        raise MeshFormatError('Expected <' + expected_name.rstrip('\n') + '>, got: <' +
                               string.rstrip('\n') + '>')

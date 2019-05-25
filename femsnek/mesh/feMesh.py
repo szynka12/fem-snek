@@ -14,8 +14,69 @@ IGNORE: -----------------------------------------------------------
 .. moduleauthor:: Wojciech Sadowski <github.com/szynka12>
 """
 
-from numpy import unique, int64, empty, append, ndarray
+from numpy import unique, int64, empty, append, ndarray, array
 from femsnek.fio.error import MeshError
+
+
+class Mesh:
+    """
+    General mesh class, holds elements of one parametric dimension
+
+    Attributes:
+
+        - `_connectivityLists: list<femsnek.core.elements.connectivityList>` - list of connectivity lists
+        - `_id` - mesh id
+        - `_node_tags` - nodes that are mentioned in _connectivityLists
+    """
+
+    __slots__ = (
+            '_connectivityLists',
+            '_id',
+            '_node_tags'
+            )
+
+    def __init__(self, lists: list, mesh_id: int):
+        """
+        Constructs instance of Mesh class.
+
+        :param lists: list of elements connectivity lists
+        :param mesh_id: physical id of the mesh
+        """
+
+        self._id = mesh_id
+        self._node_tags = empty((1, 0), dtype=int64)
+        for i in range(len(lists)):
+            self._node_tags = append(self._node_tags, lists[i]._tags[:])
+
+        self._node_tags = unique(self._node_tags)
+
+        translator = dict()
+        for i in range(self._node_tags.shape[0]):
+            translator[self._node_tags[i]] = i
+
+        for i in range(len(lists)):
+            for j in range(lists[i].n_elements()):
+                for k in range(lists[i].n_nodes()):
+                    lists[i]._tags[k, j] = translator[lists[i]._tags[k, j]]
+
+        self._connectivityLists = tuple(lists)
+
+
+    def n_nodes(self) -> int:
+        """
+        Get number of nodes in the mesh
+
+        :return: Number of nodes in the mesh
+        """
+        return self._node_tags.shape[0]
+
+    def id(self) -> str:
+        """
+        Get mesh id
+
+        :return: Id (name) of the mesh
+        """
+        return self._id
 
 
 class FeMesh:
@@ -34,7 +95,7 @@ class FeMesh:
     - `'i'` means internal and 'b' boundary
     - `N` number of the mesh
     """
-    # Fields slots ------------------------------------------
+
     __slots__ = (
             '_info',
             '_nodes',
@@ -101,9 +162,38 @@ class FeMesh:
 
             i_ids = list(filter(lambda a: a != i_ids[0], i_ids))
 
-        # convert to touple
+        # convert to tuple
         self._internalMesh = tuple(self._internalMesh)
         self._boundaryMesh = tuple(self._boundaryMesh)
+
+    # Importers ----------------------------------------------------------------------------
+    @classmethod
+    def from_gmsh(cls, path_to_file: str):
+        """
+                Importer of ascii .msh meshes.
+
+                Imports meshes generated in Gmsh software.
+                Supported version: MSH 4.1
+                Supported elements:
+                    - Line (2 node)
+                    - Triangle (3 node)
+                    - Quadrangle (4 node)
+            """
+        import femsnek.fio.gmsh as gmsh
+
+        # dict that will be passed to any reader
+        data = {}
+
+        with open(path_to_file) as file:
+            while True:
+                section_name = file.readline()
+                if len(section_name) == 0:
+                    break
+
+                reader = gmsh.get_section_reader(section_name)
+                reader(file, data)
+
+        return cls(data['version'], array(data['nodes']), data['element_lists'], data['id_list'])
 
     # Getters --------------------------------------------------------------------
     def n_nodes(self, region: (str, int) = ('', -1)) -> int:
@@ -117,7 +207,7 @@ class FeMesh:
                 return self._internalMesh[region[1]].n_nodes()
             else:
                 return self._boundaryMesh[region[1]].n_nodes()
-        return self._nodes.shape[0]
+        return self._nodes.shape[1]
 
     def name2region(self, name: str) -> (str, int):
         """
@@ -127,63 +217,59 @@ class FeMesh:
         :return: region touple of chosen mesh
         """
         for i in range(len(self._boundaryMesh)):
-            if name == self._boundaryMesh[i]._id:
+            if name == self._boundaryMesh[i].id():
                 return 'b', i
         else:
             for i in range(len(self._internalMesh)):
-                if name == self._internalMesh[i]._id:
+                if name == self._internalMesh[i].id():
                     return 'i', i
             else:
                 raise MeshError('No boundary named <' + name + '> found!')
 
-    def name2boundary_idx(self, name: str) -> int:
+    def mesh_by_region(self, region: (str, int)) -> Mesh:
         """
-        Returns index of boundary mesh, given its name.
+        Returns internal or boundary mesh based on region tuple.
 
-        :param name: name of the boundary mesh e.g. 'wall'
-        :return: index of boundary
+        :param region: region tuple
+        :return: internal or boundary mesh
         """
-        for i in range(len(self._boundaryMesh)):
-            if name == self._boundaryMesh[i]._id:
-                return i
+        if region[0] == "i":
+            try:
+                return self._internalMesh[region[1]]
+            except IndexError:
+                raise MeshError('Mesh index in tuple region out of range.')
+        elif region[0] == "b":
+            try:
+                return self._boundaryMesh[region[1]]
+            except IndexError:
+                raise MeshError('Mesh index in tuple region out of range.')
         else:
-            raise MeshError('No boundary named <' + name + '> found!')
+            raise MeshError('First element of region tuple must be \'b\' or \'i\'!')
+
+    def info(self):
+        import femsnek.fio.stream as os
+        info_stream = os.OStream()
+        info_stream << "******* Mesh Info: *******" << os.endl
+        info_stream << "Version: " << self._info << os.endl
+        info_stream << "Nodes:   " << self.n_nodes() << os.endl
+        info_stream << "Mesh regions:" << os.endl
+        info_stream << "  Internal:" << os.endl
+        for i in range(len(self._internalMesh)):
+            info_stream << "    #: " << i \
+                        << ", Physical name: " << self._internalMesh[i].id() \
+                        << os.endl
+        info_stream << "  Boundary:" << os.endl
+        for i in range(len(self._boundaryMesh)):
+            info_stream << "    #: " << i \
+                        << ", Physical name: " << self._boundaryMesh[i].id() \
+                        << os.endl
+        info_stream << "**************************" << os.endl
+
+    # Operators --------------------------------------------------------------------
+
+    def __getitem__(self, region: (str, int)):
+        return self.mesh_by_region(region)
+
+    def __call__(self, name: str):
+        return self.name2region(name)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-class Mesh:
-    """
-    General mesh class, holds elements of one parametric dimension
-
-    Attributes:
-
-        - `_connectivityLists: list<femsnek.core.elements.connectivityList>` - list of connectivity lists
-        - `_id` - mesh id
-        - `_node_tags` - nodes that are mentioned in _connectivityLists
-    """
-    __slots__: (
-            '_connectivityLists',
-            '_id',
-            '_node_tags'
-            )
-
-    def __init__(self, lists: list, mesh_id: int):
-        """
-        Constructs instance of Mesh class.
-
-        :param lists: list of elements connectivity lists
-        :param mesh_id: physical id of the mesh
-        """
-        self._connectivityLists = tuple(lists)
-        self._id = mesh_id
-        self._node_tags = empty((1, 0), dtype=int64)
-        for l in lists:
-            self._node_tags = append(self._node_tags, unique(l._tags[:]))
-
-    def n_nodes(self) -> int:
-        """
-        Get number of nodes in the mesh
-
-        :return: Number of nodes in the mesh
-        """
-        return self._node_tags.shape[0]

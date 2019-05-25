@@ -15,7 +15,7 @@ IGNORE: -----------------------------------------------------------
 """
 
 import pyevtk as evtk
-from femsnek.mesh import feMesh
+from femsnek.mesh.feMesh import FeMesh, Mesh
 import numpy as np
 import femsnek.fields as fields
 
@@ -32,7 +32,7 @@ vtkTypes = {
         }
 
 
-def write(path: str, femesh: feMesh, field_list: list) -> None:
+def write(path: str, femesh: FeMesh, fields_list = None) -> None:
     """
     Exports mesh (and in the future) scalar/vector/tensor fields
 
@@ -45,84 +45,62 @@ def write(path: str, femesh: feMesh, field_list: list) -> None:
     Boundary region:
         <path>.b.<region name>.vtu
 
-
        :param path: - path to file.
+       :param fields_list: list of fields 
        :param femesh: - finite element mesh object
     """
+    if fields_list is not None:
+        point_fields = convert_field_list(fields_list)
+    else:
+        point_fields = dict()
 
     # export internal regions
-    for mesh in femesh._internalMesh:
+    for i in range(len(femesh._internalMesh)):
+        export_region(path, ('i', i), point_fields.get(('i', i)), femesh)
 
-        # prepare tables for vtk (for description read help for: 
-        # unstructuredGridToVTK)
+    for i in range(len(femesh._boundaryMesh)):
+        export_region(path, ('b', i), point_fields.get(('b', i)), femesh)
 
-        vtk_connectivity = np.empty(0, dtype=np.int32)
-        vtk_offsets = np.empty(1, dtype=np.int32)
-        vtk_offsets[0] = 0
-        vtk_celltypes = np.empty(0, dtype=np.int8)
 
-        for con_list in mesh._connectivityLists:
-            n_el = con_list.n_elements()
-            el_nodes = con_list.n_nodes()
-            vtk_connectivity = np.append(vtk_connectivity,
-                                         con_list._tags.flatten('f'), axis=0)
-            vtk_offsets = np.append(vtk_offsets,
-                                    [el_nodes * (i + 1) + vtk_offsets[-1]
-                                     for i in range(n_el)],
-                                    axis=0)
-            vtk_celltypes = np.append(vtk_celltypes,
-                                      vtkTypes[con_list.el_type()].tid *
-                                      np.ones((n_el,), dtype=np.int8),
-                                      axis=0)
+def export_region(path: str, region: (str, int), fields: dict, femesh: FeMesh):
+    vtk_connectivity = np.empty(0, dtype=np.int32)
+    vtk_offsets = np.empty(1, dtype=np.int32)
+    vtk_offsets[0] = 0
+    vtk_cell_types = np.empty(0, dtype=np.int8)
+    for con_list in femesh[region]._connectivityLists:
+        n_el = con_list.n_elements()
+        el_nodes = con_list.n_nodes()
+        vtk_connectivity = np.append(vtk_connectivity, con_list._tags.flatten('f'), axis=0)
+        vtk_offsets = np.append(vtk_offsets,
+                                [el_nodes * (i + 1) + vtk_offsets[-1] for i in range(n_el)],
+                                axis=0)
+        vtk_cell_types = np.append(vtk_cell_types,
+                                   vtkTypes[con_list.el_type()].tid *
+                                   np.ones((n_el,), dtype=np.int8),
+                                   axis=0)
 
-        filename = path + '.i.' + str(mesh._id)
-
-        evtk.hl.unstructuredGridToVTK(filename,
-                                      femesh._nodes[0, :],
-                                      femesh._nodes[1, :],
-                                      femesh._nodes[2, :],
-                                      vtk_connectivity,
-                                      vtk_offsets[1:],
-                                      vtk_celltypes)
-
-    # export boundary regions    
-    for mesh in femesh._boundaryMesh:
-
-        vtk_connectivity = np.empty(0, dtype=np.int32)
-        vtk_offsets = np.empty(1, dtype=np.int32)
-        vtk_offsets[0] = 0
-        vtk_celltypes = np.empty(0, dtype=np.int8)
-
-        for con_list in mesh._connectivityLists:
-            n_el = con_list.n_elements()
-            el_nodes = con_list.n_nodes()
-            vtk_connectivity = np.append(vtk_connectivity,
-                                         con_list._tags.flatten('f'), axis=0)
-            vtk_offsets = np.append(vtk_offsets,
-                                    [el_nodes * (i + 1) + vtk_offsets[-1]
-                                     for i in range(n_el)],
-                                    axis=0)
-            vtk_celltypes = np.append(vtk_celltypes,
-                                      vtkTypes[con_list.el_type()].tid *
-                                      np.ones((n_el,), dtype=np.int8),
-                                      axis=0)
-
-        filename = path + '.b.' + str(mesh._id)
+        filename = path + '.' + region[0] + '.' + str(femesh[region].id())
 
         evtk.hl.unstructuredGridToVTK(filename,
-                                      femesh._nodes[0, :],
-                                      femesh._nodes[1, :],
-                                      femesh._nodes[2, :],
+                                      femesh._nodes[0, femesh[region]._node_tags],
+                                      femesh._nodes[1, femesh[region]._node_tags],
+                                      femesh._nodes[2, femesh[region]._node_tags],
                                       vtk_connectivity,
                                       vtk_offsets[1:],
-                                      vtk_celltypes)
+                                      vtk_cell_types,
+                                      pointData=fields)
 
 
 def convert_field_list(field_list: list, point_fields=None) -> dict:
     if point_fields is None:
         point_fields = dict()
     for field in field_list:
-        if isinstance(field, fields.scalar.ScalarField):
+        if not isinstance(field, fields.scalar.ScalarField):
             # convert to list of scalars and than export
             point_fields = convert_field_list(field.components(), point_fields)
+        else:
+            if field.region() not in point_fields:
+                point_fields[field.region()] = dict()
+            point_fields[field.region()][field.name()] = field.nodal()
+
     return point_fields
