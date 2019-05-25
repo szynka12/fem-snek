@@ -14,12 +14,62 @@ IGNORE: -----------------------------------------------------------
 .. moduleauthor:: Wojciech Sadowski <wojciech1sadowski@gmail.com>
 """
 
-from numpy import zeros, int64, ndarray
+from numpy import zeros, int64, ndarray, array, tile
+
 
 # Element signatures
 T_Line1 = 1
 T_Tri1 = 2
 T_Quad1 = 3
+
+
+class Element:
+    __slots__ = ()
+
+    def __init__(self):
+        pass
+
+
+class Tri1(Element):
+    ksi = 0
+    eta = 1
+
+    def __init__(self):
+        pass
+
+    def N(self, points: ndarray) -> ndarray:
+
+        if len(points.shape) == 1:
+            return array([1 - points[self.ksi] - points[self.eta],
+                          points[self.ksi],
+                          points[self.eta]])
+        else:
+            return array([1 - points[self.ksi, :] - points[self.eta, :],
+                          points[self.ksi, :],
+                          points[self.eta, :]])
+
+    def gradN(self, points: ndarray) -> (ndarray, ndarray):
+
+        n_d_ksi = array([[-1], [1], [0]])
+        n_d_eta = array([[-1], [0], [1]])
+
+        if len(points.shape) == 1:
+            return n_d_ksi, n_d_eta
+        else:
+            return tile(n_d_ksi, (1, points.shape[1])), tile(n_d_eta, (1, points.shape[1]))
+
+    def J(self, points: ndarray):
+        return array(
+                [[points[0, 1] - points[0, 0], points[1, 1] - points[1, 0]],
+                 [points[0, 2] - points[0, 0], points[1, 2] - points[1, 0]]]
+                )
+
+    def detJ(self, points: ndarray):
+        j = self.J(points)
+        return j[0, 0] * j[1, 1] - j[0, 1] * j[1, 0]
+
+    def quadrature(self) -> (ndarray, ndarray):
+        return array([[1 / 3], [1 / 3]]), array([0.5])
 
 
 class ConnectivityList:
@@ -34,12 +84,13 @@ class ConnectivityList:
         -`_tags: nparray` - tags of nodes that span elements, has shape equal `(_nNodes, nElem)`
     """
     __slots__ = (
-                '_tags'
-                )
+            '_tags'
+    )
 
     _dimension = 1  # element dimension
-    _nNodes = 1     # number of nodes per element
-    _type = 0       # element type
+    _nNodes = 1  # number of nodes per element
+    _type = 0  # element type
+    _calculator = None
 
     def __init__(self, n_elem: int):
         """
@@ -105,6 +156,9 @@ class ConnectivityList:
         """
         return self._type
 
+    def fem_calculator(self):
+        return self._calculator
+
 
 class ListLine1(ConnectivityList):
     """
@@ -142,6 +196,9 @@ class ListTri1(ConnectivityList):
     _dimension = 2
     _nNodes = 3
     _type = T_Tri1
+    _calculator = Tri1()
+
+
 
 
 class ListQuad1(ConnectivityList):

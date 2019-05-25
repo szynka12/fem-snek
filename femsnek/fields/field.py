@@ -19,6 +19,7 @@ from femsnek.fio.error import FieldOperationError
 from femsnek.mesh import feMesh
 
 
+
 class FieldBase(ABC):
     __slots__ = ('_name',
                  '_region',
@@ -46,6 +47,14 @@ class FieldBase(ABC):
         :return: name of the field
         """
         return self._name
+
+    def mesh(self) -> feMesh.Mesh:
+        """
+        Returns mesh on which field is defined.
+
+        :return: mesh
+        """
+        return self._ref_feMesh[self._region]
 
     def region(self) -> (str, int):
         """

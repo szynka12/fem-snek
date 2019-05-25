@@ -61,6 +61,13 @@ class Mesh:
 
         self._connectivityLists = tuple(lists)
 
+    def n_lists(self) -> int:
+        """
+        Get number of ConnectivityList objects
+
+        :return: number of ConnectivityList objects
+        """
+        return len(self._connectivityLists)
 
     def n_nodes(self) -> int:
         """
@@ -69,6 +76,15 @@ class Mesh:
         :return: Number of nodes in the mesh
         """
         return self._node_tags.shape[0]
+
+    def lists(self):
+        """
+        Returns connectivity lists of the mesh
+
+        :return: connectivity lists
+        """
+
+        return self._connectivityLists
 
     def id(self) -> str:
         """
@@ -196,6 +212,14 @@ class FeMesh:
         return cls(data['version'], array(data['nodes']), data['element_lists'], data['id_list'])
 
     # Getters --------------------------------------------------------------------
+    def nodes(self):
+        """
+        Get array of node coordinates
+
+        :return:
+        """
+        return self._nodes
+
     def n_nodes(self, region: (str, int) = ('', -1)) -> int:
         """
         Get number of nodes in the mesh

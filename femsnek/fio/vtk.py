@@ -46,7 +46,7 @@ def write(path: str, femesh: FeMesh, fields_list = None) -> None:
         <path>.b.<region name>.vtu
 
        :param path: - path to file.
-       :param fields_list: list of fields 
+       :param fields_list: list of fields
        :param femesh: - finite element mesh object
     """
     if fields_list is not None:
