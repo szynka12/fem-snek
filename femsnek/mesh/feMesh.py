@@ -15,6 +15,8 @@ IGNORE: -----------------------------------------------------------
 """
 
 from numpy import unique, int64, empty, append, ndarray, array
+from numpy import max as npmax
+from numpy import min as npmin
 from femsnek.fio.error import MeshError
 
 
@@ -129,12 +131,16 @@ class FeMesh:
         :param physical_ids: physical id of each element in element_lists
         """
         self._info = info
-        self._nodes = nodes
         self._internalMesh = []
         self._boundaryMesh = []
 
         # get max dimension of the mesh
         max_dim = max([i.dim() for i in element_lists])
+        if max_dim == 2:
+            if npmax(nodes[2, :]) != npmin(nodes[2, :]):
+                raise MeshError("2D mesh must lay on xy plane.")
+
+        self._nodes = nodes
 
         # extract indices in element lists that correspond to internal mesh
         internal_index = [i for (i, elist) in enumerate(element_lists) if elist.dim() == max_dim]

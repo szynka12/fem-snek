@@ -8,24 +8,33 @@
 ###################################################################
 
 class Error(Exception):
-   """Base class for other exceptions"""
-   pass
+    """Base class for other exceptions"""
+    pass
+
 
 class MeshFormatError(Error):
-   """Rised when error in mesh file is found"""
-   pass
+    """Rised when error in mesh file is found"""
+    pass
+
 
 class MeshError(Error):
-   """Rised when error in mesh specification is found"""
-   pass
+    """Rised when error in mesh specification is found"""
+    pass
+
 
 class FieldOperationError(Error):
-   """
+    """
    Raised when illegal field operation is performed
-   
+
    Examples:
    <Scalar> + <Vector>
    div(<Scalar>)
    """
-   pass
+    pass
 
+
+class CoreError(Error):
+    """
+    Raised when illegal operation while fem core operation is made, e.g. quadrature creation.
+    """
+    pass

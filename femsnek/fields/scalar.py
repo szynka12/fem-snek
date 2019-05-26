@@ -17,7 +17,7 @@ IGNORE: -----------------------------------------------------------
 
 from femsnek.fields.field import FieldBase, UniformField
 from femsnek.mesh.feMesh import FeMesh
-from numpy import ndarray
+from numpy import ndarray, zeros
 from femsnek.fio.stream import WritableBase
 from femsnek.fio.error import FieldOperationError
 
@@ -107,6 +107,16 @@ class Scalar(UniformField, WritableBase):
     __slots__ = '_value'
     _region = (None, None)
 
+    class ScalarValueNodalWrapper:
+        """
+        Private class used in nodal() method
+        """
+        def __init__(self, value):
+            self._value = value
+
+        def __getitem__(self, idx: int):
+            return self._value
+
     def __init__(self, value: float, name: str = None):
         """
         Creates instance of Scalar object
@@ -121,7 +131,14 @@ class Scalar(UniformField, WritableBase):
             self._name = str(self._value)
 
     def expand(self, mesh: FeMesh, region):
-        NotImplemented
+        return ScalarField(self._name,
+                           self._value + zeros((mesh[region].n_nodes(), 1)),
+                           mesh,
+                           region
+                           )
+
+    def nodal(self):
+        return Scalar.ScalarValueNodalWrapper(self._value)
 
     def components(self):
         return self

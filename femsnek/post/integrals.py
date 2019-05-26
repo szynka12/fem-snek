@@ -26,15 +26,15 @@ def integral(field: f.FieldBase):
 
         # get fem calculator, it will give us quadratures, element Jacobian etc.
         c = mesh.lists()[i].fem_calculator()
-        q, w = c.quadrature()   # quadrature and weights
-        n = c.N(q)              # shape functions at q-points
+        q = c.quadrature()   # quadrature and weights
+        n = c.N(q.points)              # shape functions at q-points
         for el in range(mesh.lists()[i].n_elements()):
             element_coordinates = field._ref_feMesh._nodes[:, mesh.lists()[i][el]]
             # extract nodal values in the element
             nodal_values = field.nodal()[mesh.lists()[i][el]]
 
             # accumulate integral
-            int_output += c.detJ(element_coordinates)*nodal_values @ n*w
+            int_output += c.detJ(element_coordinates)*nodal_values @ n*q.weights
 
     return int_output
 

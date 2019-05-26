@@ -15,7 +15,7 @@ IGNORE: -----------------------------------------------------------
 """
 
 from numpy import zeros, int64, ndarray, array, tile
-
+import femsnek.core.quadratures as quadrature
 
 # Element signatures
 T_Line1 = 1
@@ -26,29 +26,29 @@ T_Quad1 = 3
 class Element:
     __slots__ = ()
 
+    order = None
+    q = None
+
     def __init__(self):
         pass
+
+    @classmethod
+    def quadrature(cls):
+        return cls.q.by_order(cls.order)
 
 
 class Tri1(Element):
-    ksi = 0
-    eta = 1
+    order = 1
+    q = quadrature.QTri
 
-    def __init__(self):
-        pass
+    @staticmethod
+    def N(points: ndarray) -> ndarray:
+        return array([1 - points[0, :] - points[1, :],
+                      points[0, :],
+                      points[1, :]])
 
-    def N(self, points: ndarray) -> ndarray:
-
-        if len(points.shape) == 1:
-            return array([1 - points[self.ksi] - points[self.eta],
-                          points[self.ksi],
-                          points[self.eta]])
-        else:
-            return array([1 - points[self.ksi, :] - points[self.eta, :],
-                          points[self.ksi, :],
-                          points[self.eta, :]])
-
-    def gradN(self, points: ndarray) -> (ndarray, ndarray):
+    @staticmethod
+    def gradN(points: ndarray) -> (ndarray, ndarray):
 
         n_d_ksi = array([[-1], [1], [0]])
         n_d_eta = array([[-1], [0], [1]])
@@ -58,18 +58,22 @@ class Tri1(Element):
         else:
             return tile(n_d_ksi, (1, points.shape[1])), tile(n_d_eta, (1, points.shape[1]))
 
-    def J(self, points: ndarray):
+    @staticmethod
+    def J(points: ndarray):
         return array(
                 [[points[0, 1] - points[0, 0], points[1, 1] - points[1, 0]],
                  [points[0, 2] - points[0, 0], points[1, 2] - points[1, 0]]]
                 )
 
-    def detJ(self, points: ndarray):
-        j = self.J(points)
+    @staticmethod
+    def detJ(points: ndarray):
+        j = array(
+                [[points[0, 1] - points[0, 0], points[1, 1] - points[1, 0]],
+                 [points[0, 2] - points[0, 0], points[1, 2] - points[1, 0]]]
+                )
         return j[0, 0] * j[1, 1] - j[0, 1] * j[1, 0]
 
-    def quadrature(self) -> (ndarray, ndarray):
-        return array([[1 / 3], [1 / 3]]), array([0.5])
+
 
 
 class ConnectivityList:
@@ -196,9 +200,7 @@ class ListTri1(ConnectivityList):
     _dimension = 2
     _nNodes = 3
     _type = T_Tri1
-    _calculator = Tri1()
-
-
+    _calculator = Tri1
 
 
 class ListQuad1(ConnectivityList):

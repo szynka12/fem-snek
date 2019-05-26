@@ -19,7 +19,6 @@ from femsnek.fio.error import FieldOperationError
 from femsnek.mesh import feMesh
 
 
-
 class FieldBase(ABC):
     __slots__ = ('_name',
                  '_region',

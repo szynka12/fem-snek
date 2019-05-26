@@ -18,7 +18,7 @@ import pyevtk as evtk
 from femsnek.mesh.feMesh import FeMesh, Mesh
 import numpy as np
 import femsnek.fields as fields
-
+from femsnek.fio.error import FieldOperationError
 
 # Data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,7 +67,7 @@ def export_region(path: str, region: (str, int), fields: dict, femesh: FeMesh):
     vtk_offsets = np.empty(1, dtype=np.int32)
     vtk_offsets[0] = 0
     vtk_cell_types = np.empty(0, dtype=np.int8)
-    for con_list in femesh[region]._connectivityLists:
+    for con_list in femesh[region].lists():
         n_el = con_list.n_elements()
         el_nodes = con_list.n_nodes()
         vtk_connectivity = np.append(vtk_connectivity, con_list._tags.flatten('f'), axis=0)
@@ -95,6 +95,13 @@ def convert_field_list(field_list: list, point_fields=None) -> dict:
     if point_fields is None:
         point_fields = dict()
     for field in field_list:
+        if not isinstance(field, fields.field.FieldBase):
+            raise FieldOperationError('Can\'t export to .vtk!\n Type ' + str(type(field)) + 'is not a valid field type.')
+
+        if isinstance(field, fields.field.UniformField):
+            raise FieldOperationError('Can\'t export to .vtk!\n Use expand() on fields inheriting from UniformField '
+                                      'before export!')
+
         if not isinstance(field, fields.scalar.ScalarField):
             # convert to list of scalars and than export
             point_fields = convert_field_list(field.components(), point_fields)
