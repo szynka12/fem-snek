@@ -14,7 +14,7 @@ IGNORE: -----------------------------------------------------------
 .. moduleauthor:: Wojciech Sadowski <wojciech1sadowski@gmail.com>
 """
 
-import femsnek.core.elements as elements
+import femsnek.core.connectivity as elements
 import numpy as np
 from femsnek.fio.error import MeshFormatError
 from _io import TextIOWrapper

@@ -1,4 +1,4 @@
-from femsnek.core.elements import Tri1
+from femsnek.core.connectivity import Tri1
 from numpy import array
 
 p = array([[0, 0], [1, 0], [0, 1]]).T
